@@ -1,7 +1,11 @@
 from pico2d import *
+import game_world
+from claw import Claw
 
-RD, LD, RU, LU = range(4)
+
+RD, LD, RU, LU, DOWN = range(5)
 key_event_table = {
+    (SDL_KEYDOWN, SDLK_DOWN): DOWN,
     (SDL_KEYDOWN, SDLK_RIGHT): RD,
     (SDL_KEYDOWN, SDLK_LEFT): LD,
     (SDL_KEYUP, SDLK_RIGHT): RU,
@@ -11,13 +15,15 @@ key_event_table = {
 class IDLE:
     @staticmethod
     def enter(self, event):
-        print('ENTER IDLE')
+        # print('ENTER IDLE')
         self.dir = 0
         pass
 
     @staticmethod
-    def exit(self):
-        print('exit idle')
+    def exit(self, event):
+        # print('exit idle')
+        if event == DOWN:
+            self.fire_claw()
         pass
 
     @staticmethod
@@ -38,7 +44,7 @@ class IDLE:
 class RUN:
     @staticmethod
     def enter(self, event):
-        print('enter run')
+        # print('enter run')
 
         if event == RD:
             self.dir += 1
@@ -51,9 +57,11 @@ class RUN:
         pass
 
     @staticmethod
-    def exit(self):
-        print('exit run')
+    def exit(self, event):
+        # print('exit run')
         self.face_dir = self.dir
+        if event == DOWN:
+            self.fire_claw()
         pass
 
     @staticmethod
@@ -74,8 +82,8 @@ class RUN:
         pass
 
 next_state = {
-    IDLE: {RU: RUN, LU:RUN, RD: RUN, LD: RUN},
-    RUN: {RU: IDLE, LU: IDLE, LD: IDLE, RD: IDLE}
+    IDLE: {RU: RUN, LU:RUN, RD: RUN, LD: RUN, DOWN: IDLE},
+    RUN: {RU: IDLE, LU: IDLE, LD: IDLE, RD: IDLE, DOWN: RUN}
 }
 
 
@@ -105,12 +113,17 @@ class Miner:
 
     def update(self):
         self.cur_state.do(self)
+
         if self.q:
             event = self.q.pop()
-            self.cur_state.exit(self)
+            self.cur_state.exit(self, event)
             self.cur_state = next_state[self.cur_state][event]
             self.cur_state.enter(self, event)
 
 
     def draw(self):
         self.cur_state.draw(self)
+
+    def fire_claw(self):
+        claw = Claw(self.x, self.y, self.dir*0.5)
+        game_world.add_object(claw, 1)

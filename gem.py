@@ -34,3 +34,6 @@ class Gem:
         self.big_stone_image.draw(self.bigstonecoordx, self.bigstonecoordy)
         self.diamond_image.draw(self.diamondcoordx, self.diamondcoordy)
         self.bomb_image.draw(self.bombcoordx, self.bombcoordy)
+
+    def update(self):
+        pass

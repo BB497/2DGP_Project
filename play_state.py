@@ -1,5 +1,7 @@
 from pico2d import *
 import game_framework
+import game_world
+
 from background import Background
 from miner import Miner
 from gem import Gem
@@ -13,6 +15,7 @@ def handle_events():
             game_framework.quit()
         else:
             miner.handle_event(event)
+            # claw.handle_event(event)
 
 background = None
 miner = None
@@ -24,15 +27,20 @@ def enter():
     background = Background()
     miner = Miner()
     gem = Gem()
-    # running = True
+    game_world.add_object(miner, 1)
+    game_world.add_object(background, 0)
+    game_world.add_object(gem, 0)
 
 def exit():
-    global gem, background
-    del gem
-    del background
+    # global gem, background
+    # del gem
+    # del background
+    game_world.clear()
 
 def update():
-    miner.update()
+    for game_object in game_world.all_objects():
+        game_object.update()
+    # miner.update()
 
 def draw():
     clear_canvas()
@@ -40,9 +48,11 @@ def draw():
     update_canvas()
 
 def draw_world():
-    background.draw()
-    miner.draw()
-    gem.draw()
+    for game_object in game_world.all_objects():
+        game_object.draw()
+    # background.draw()
+    # miner.draw()
+    # gem.draw()
 
 def pause():
     pass
