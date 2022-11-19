@@ -2,7 +2,6 @@ from pico2d import *
 import game_world
 from claw import Claw
 
-
 RD, LD, RU, LU, DOWN = range(5)
 key_event_table = {
     (SDL_KEYDOWN, SDLK_DOWN): DOWN,
@@ -22,8 +21,6 @@ class IDLE:
     @staticmethod
     def exit(self, event):
         # print('exit idle')
-        if event == DOWN:
-            self.fire_claw()
         pass
 
     @staticmethod
@@ -35,10 +32,10 @@ class IDLE:
     def draw(self):
         if self.face_dir == 1:
             self.image_idler.clip_draw(self.frame*130, 0, 131, 177,
-                                       self.x, self.y, 50, 50)
+                                       self.x, self.y, 65, 65)
         else:
             self.image_idlel.clip_draw(self.frame*130, 0, 131, 177,
-                                       self.x, self.y, 50, 50)
+                                       self.x, self.y, 65, 65)
         pass
 
 class RUN:
@@ -60,25 +57,23 @@ class RUN:
     def exit(self, event):
         # print('exit run')
         self.face_dir = self.dir
-        if event == DOWN:
-            self.fire_claw()
         pass
 
     @staticmethod
     def do(self):
         self.frame = (self.frame + 1) % 8
         self.x += (self.dir * 0.6)
-        self.x = clamp(0, self.x, 800)
+        self.x = clamp(0+25, self.x, 1200-25)
         pass
 
     @staticmethod
     def draw(self):
         if self.dir == -1:
             self.image_left.clip_draw(self.frame*153, 0, 150, 170,
-                                       self.x, self.y, 50, 50)
+                                       self.x, self.y, 65, 65)
         elif self.dir == 1:
             self.image_right.clip_draw(self.frame*154, 0, 150, 170,
-                                      self.x, self.y, 50, 50)
+                                      self.x, self.y, 65, 65)
         pass
 
 next_state = {
@@ -100,7 +95,7 @@ class Miner:
 
 
     def __init__(self):
-        self.x, self.y = 400, 530
+        self.x, self.y = 600, 800
         self.frame = 0
         self.dir, self.face_dir = 0, 1
         self.image_right = load_image('miner_run_right.png')
@@ -123,7 +118,10 @@ class Miner:
 
     def draw(self):
         self.cur_state.draw(self)
+        # self.font.draw(self.x-60, self.y+50,
+        #                '(Time: %3.2f)' % get_time(), (255,255,0))
+        draw_rectangle(*self.get_bb())
 
-    def fire_claw(self):
-        claw = Claw(self.x, self.y, self.dir*0.5)
-        game_world.add_object(claw, 1)
+
+    def get_bb(self):
+        return self.x-30, self.y-30, self.x+30, self.y+30
