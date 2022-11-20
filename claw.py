@@ -1,9 +1,12 @@
 from pico2d import *
 import game_world
 
-RD, LD, RU, LU, DOWN = range(5)
+RD, LD, RU, LU, DD, DU, UD, UU= range(8)
 key_event_table = {
-    (SDL_KEYDOWN, SDLK_DOWN): DOWN,
+    (SDL_KEYDOWN, SDLK_DOWN): DD,
+    (SDL_KEYUP, SDLK_DOWN): DU,
+    (SDL_KEYDOWN, SDLK_UP): UD,
+    (SDL_KEYUP, SDLK_UP): UU,
     (SDL_KEYDOWN, SDLK_RIGHT): RD,
     (SDL_KEYDOWN, SDLK_LEFT): LD,
     (SDL_KEYUP, SDLK_RIGHT): RU,
@@ -69,9 +72,41 @@ class RUN:
             self.image.draw(self.x, self.y)
         pass
 
+
+
+class DOWN:
+    @staticmethod
+    def enter(self, event):
+        if event == DD:
+            self.ddir -= 1
+        elif event == UD:
+            self.ddir += 1
+        elif event == DU:
+            self.ddir += 1
+        elif event == UU:
+            self.ddir -= 1
+        pass
+
+    @staticmethod
+    def exit(self, event):
+
+        pass
+
+    @staticmethod
+    def do(self):
+        self.y += (self.ddir * 1)
+        self.y = clamp(0+25, self.y, 750-25)
+        pass
+
+    @staticmethod
+    def draw(self):
+        self.image.draw(self.x, self.y)
+        pass
+
 next_state = {
-    IDLE: {RU: RUN, LU:RUN, RD: RUN, LD: RUN, DOWN: IDLE},
-    RUN: {RU: IDLE, LU: IDLE, LD: IDLE, RD: IDLE, DOWN: RUN}
+    IDLE: {RU: RUN, LU: RUN, RD: RUN, LD: RUN, DD: DOWN, DU: DOWN, UD: DOWN, UU: DOWN},
+    RUN: {RU: IDLE, LU: IDLE, LD: IDLE, RD: IDLE, DU: RUN, UU: RUN, DD: RUN, UD: RUN},
+    DOWN: {RU: IDLE, LU: IDLE, LD: IDLE, RD: IDLE, DU: IDLE, UU: IDLE, DD: IDLE, UD: IDLE}
 }
 
 
@@ -91,6 +126,7 @@ class Claw:
         self.x, self.y = 600, 750
         self.frame = 0
         self.dir, self.face_dir = 0, 1
+        self.ddir = 0
         self.image = load_image('claw.png')
         self.q = []
         self.cur_state = IDLE
@@ -115,3 +151,6 @@ class Claw:
 
     def get_bb(self):
         return self.x-30, self.y-30, self.x+30, self.y+30
+
+    def handle_collision(self, other, group):
+        pass

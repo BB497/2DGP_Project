@@ -38,6 +38,8 @@ def enter():
            [Diamond() for i in range(2)] + [Stone() for i in range(7)] + [BigStone() for i in range(5)]
     game_world.add_objects(gems, 0)
 
+    game_world.add_collision_pairs(claw, gems, 'claw:gem')
+
 
 def exit():
     # global gem, background
